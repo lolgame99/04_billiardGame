@@ -47,14 +47,16 @@ public class Game {
                 this.renderer.screenToPhysicsY(cue.getEndY())
         );
         Vector2 direction = end.subtract(start).rotate(Rotation.rotation180());
-        Ray ray = new Ray(start, direction);
-
-        ArrayList<RaycastResult> results = new ArrayList<>();
-        boolean result = this.physics.getWorld().raycast(ray, 1.0,false,false,results);
-        if (result && results.get(0).getBody().getUserData() instanceof Ball){
-            RaycastResult hit = results.get(0);
-            hit.getBody().applyForce(direction.multiply(500));
+        if (!direction.isZero()){
+            Ray ray = new Ray(start, direction);
+            ArrayList<RaycastResult> results = new ArrayList<>();
+            boolean result = this.physics.getWorld().raycast(ray, 0.1,false,false,results);
+            if (result && results.get(0).getBody().getUserData() instanceof Ball){
+                RaycastResult hit = results.get(0);
+                hit.getBody().applyForce(direction.multiply(500));
+            }
         }
+
         this.renderer.setCue(Optional.empty());
     }
 
