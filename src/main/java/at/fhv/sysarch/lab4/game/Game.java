@@ -46,10 +46,8 @@ public class Game {
                 this.renderer.screenToPhysicsY(cue.getEndY())
         );
 
-
-
-        Ray ray = new Ray(start, start.subtract(end));
-        this.renderer.addDebugVector(ray.getDirectionVector());
+        Ray ray = new Ray(start, end);
+        this.renderer.addDebugVector(ray.getStart(), ray.getDirectionVector());
 
         ArrayList<RaycastResult> results = new ArrayList<>();
         boolean result = this.physics.getWorld().raycast(ray, 1.0,false,false,results);

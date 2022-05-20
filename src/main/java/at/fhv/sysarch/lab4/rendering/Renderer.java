@@ -1,9 +1,6 @@
 package at.fhv.sysarch.lab4.rendering;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import at.fhv.sysarch.lab4.game.Cue;
 import at.fhv.sysarch.lab4.physics.Physics;
@@ -49,7 +46,7 @@ public class Renderer extends AnimationTimer {
     private String actionMessage;
     private int player1Score;
     private int player2Score;
-    private List<Vector2> debugVectors;
+    private Map<Vector2,Vector2> debugVectors;
 
     private Physics physics;
 
@@ -80,7 +77,7 @@ public class Renderer extends AnimationTimer {
         // caching of identity for reverting to JavaFX coordinates
         this.jfxCoords = new Affine();
 
-        this.debugVectors = new LinkedList<>();
+        this.debugVectors = new HashMap<>();
 
         this.gc.setStroke(Color.WHITE);
     }
@@ -89,8 +86,8 @@ public class Renderer extends AnimationTimer {
         this.strikeMessage = strikeMessage;
     }
 
-    public void addDebugVector(Vector2 debugVector){
-        this.debugVectors.add(debugVector);
+    public void addDebugVector(Vector2 debugVectorStart, Vector2 debugVectorDirection){
+        this.debugVectors.put(debugVectorStart,debugVectorDirection);
     }
 
     public void setActionMessage(String actionMessage) {
@@ -283,13 +280,20 @@ public class Renderer extends AnimationTimer {
     }
 
     private void drawDebugVectors(){
-        for (Vector2 v: debugVectors) {
+        for (Map.Entry<Vector2,Vector2> v: debugVectors.entrySet()) {
 
             Affine baseTrans = new Affine();
             baseTrans.appendTranslation(0, 0);
             gc.setTransform(baseTrans);
+
+            double startX = physicsToScreenX(v.getKey().x);
+            double startY = physicsToScreenY(v.getKey().y);
+            double endX = startX+ physicsToScreenX(v.getValue().x);
+            double endY = startY+ physicsToScreenY(v.getValue().y);
+
             this.gc.setLineWidth(2);
-            this.gc.strokeLine(centerX,centerY, physicsToScreenX(v.x), physicsToScreenY(v.y));
+            this.gc.setStroke(Color.WHITE);
+            this.gc.strokeLine(startX,startY, endX, endY);
 
         }
     }
