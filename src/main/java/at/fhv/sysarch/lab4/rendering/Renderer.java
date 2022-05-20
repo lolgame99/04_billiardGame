@@ -46,7 +46,6 @@ public class Renderer extends AnimationTimer {
     private String actionMessage;
     private int player1Score;
     private int player2Score;
-    private Map<Vector2,Vector2> debugVectors;
 
     private Physics physics;
 
@@ -77,17 +76,11 @@ public class Renderer extends AnimationTimer {
         // caching of identity for reverting to JavaFX coordinates
         this.jfxCoords = new Affine();
 
-        this.debugVectors = new HashMap<>();
-
         this.gc.setStroke(Color.WHITE);
     }
 
     public void setStrikeMessage(String strikeMessage) {
         this.strikeMessage = strikeMessage;
-    }
-
-    public void addDebugVector(Vector2 debugVectorStart, Vector2 debugVectorDirection){
-        this.debugVectors.put(debugVectorStart,debugVectorDirection);
     }
 
     public void setActionMessage(String actionMessage) {
@@ -184,7 +177,6 @@ public class Renderer extends AnimationTimer {
         this.drawBalls();
         this.drawCue();
         this.drawFPS(dt);
-        this.drawDebugVectors();
         
         this.drawMessages();
         
@@ -276,25 +268,6 @@ public class Renderer extends AnimationTimer {
             this.gc.setTransform(baseTrans);
             this.gc.setLineWidth(3);
             this.gc.strokeLine(cue.get().getStartX(),cue.get().getStartY(), cue.get().getEndX(), cue.get().getEndY());
-        }
-    }
-
-    private void drawDebugVectors(){
-        for (Map.Entry<Vector2,Vector2> v: debugVectors.entrySet()) {
-
-            Affine baseTrans = new Affine();
-            baseTrans.appendTranslation(0, 0);
-            gc.setTransform(baseTrans);
-
-            double startX = physicsToScreenX(v.getKey().x);
-            double startY = physicsToScreenY(v.getKey().y);
-            double endX = startX+ physicsToScreenX(v.getValue().x);
-            double endY = startY+ physicsToScreenY(v.getValue().y);
-
-            this.gc.setLineWidth(2);
-            this.gc.setStroke(Color.WHITE);
-            this.gc.strokeLine(startX,startY, endX, endY);
-
         }
     }
 

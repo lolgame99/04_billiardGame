@@ -10,6 +10,7 @@ import at.fhv.sysarch.lab4.rendering.Renderer;
 import javafx.scene.input.MouseEvent;
 import org.dyn4j.dynamics.RaycastResult;
 import org.dyn4j.geometry.Ray;
+import org.dyn4j.geometry.Rotation;
 import org.dyn4j.geometry.Vector2;
 
 public class Game {
@@ -45,16 +46,14 @@ public class Game {
                 this.renderer.screenToPhysicsX(cue.getEndX()),
                 this.renderer.screenToPhysicsY(cue.getEndY())
         );
-
-        Ray ray = new Ray(start, end);
-        this.renderer.addDebugVector(ray.getStart(), ray.getDirectionVector());
+        Vector2 direction = end.subtract(start).rotate(Rotation.rotation180());
+        Ray ray = new Ray(start, direction);
 
         ArrayList<RaycastResult> results = new ArrayList<>();
         boolean result = this.physics.getWorld().raycast(ray, 1.0,false,false,results);
         if (result && results.get(0).getBody().getUserData() instanceof Ball){
             RaycastResult hit = results.get(0);
-            System.out.println(((Ball) hit.getBody().getUserData()).getColor() + " Ball hit");
-            hit.getBody().applyForce(start.subtract(end).multiply(500));
+            hit.getBody().applyForce(direction.multiply(500));
         }
         this.renderer.setCue(Optional.empty());
     }
