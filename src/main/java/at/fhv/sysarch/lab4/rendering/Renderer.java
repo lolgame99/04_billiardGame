@@ -276,7 +276,7 @@ public class Renderer extends AnimationTimer {
         if (cue.isPresent()){
             Affine baseTrans = new Affine();
             baseTrans.appendTranslation(0, 0);
-            gc.setTransform(baseTrans);
+            this.gc.setTransform(baseTrans);
             this.gc.setLineWidth(3);
             this.gc.strokeLine(cue.get().getStartX(),cue.get().getStartY(), cue.get().getEndX(), cue.get().getEndY());
         }
@@ -285,9 +285,11 @@ public class Renderer extends AnimationTimer {
     private void drawDebugVectors(){
         for (Vector2 v: debugVectors) {
 
-            this.gc.setTransform(this.poolCoords);
+            Affine baseTrans = new Affine();
+            baseTrans.appendTranslation(0, 0);
+            gc.setTransform(baseTrans);
             this.gc.setLineWidth(2);
-            this.gc.strokeLine(0,0, physicsToScreenX(v.x), physicsToScreenY(v.y));
+            this.gc.strokeLine(centerX,centerY, physicsToScreenX(v.x), physicsToScreenY(v.y));
 
         }
     }
