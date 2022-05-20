@@ -48,7 +48,8 @@ public class Game {
 
 
 
-        Ray ray = new Ray(start, new Vector2(start.subtract(end)));
+        Ray ray = new Ray(start, end);
+
         ArrayList<RaycastResult> results = new ArrayList<>();
         boolean result = this.physics.getWorld().raycast(ray, 1.0,false,false,results);
         if (result && results.get(0).getBody().getUserData() instanceof Ball){

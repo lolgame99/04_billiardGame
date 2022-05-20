@@ -1,6 +1,7 @@
 package at.fhv.sysarch.lab4.rendering;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,6 +49,7 @@ public class Renderer extends AnimationTimer {
     private String actionMessage;
     private int player1Score;
     private int player2Score;
+    private List<Vector2> debugVectors;
 
     private Physics physics;
 
@@ -78,11 +80,17 @@ public class Renderer extends AnimationTimer {
         // caching of identity for reverting to JavaFX coordinates
         this.jfxCoords = new Affine();
 
+        this.debugVectors = new LinkedList<>();
+
         this.gc.setStroke(Color.WHITE);
     }
 
     public void setStrikeMessage(String strikeMessage) {
         this.strikeMessage = strikeMessage;
+    }
+
+    public void addDebugVector(Vector2 debugVector){
+        this.debugVectors.add(debugVector);
     }
 
     public void setActionMessage(String actionMessage) {
@@ -147,6 +155,26 @@ public class Renderer extends AnimationTimer {
         return pY;
     }
 
+    public double physicsToScreenX(double physicsX) {
+        // screen has origin (0/0) top left corner,
+        // physics has origin (0/0) center of the screen
+        // and physics is scaled by factor SCALE
+        double pX = physicsX * SCALE;
+        pX = pX + centerX;
+
+        return pX;
+    }
+
+    public double physicsToScreenY(double physicsY) {
+        // screen has origin (0/0) top left corner,
+        // physics has origin (0/0) center of the screen
+        // and physics is scaled by factor SCALE
+        double pY = physicsY * SCALE;
+        pY = pY + centerY;
+
+        return pY;
+    }
+
     @Override
     public void handle(long now) {
         double dt = (double) (now - lastUpdate) / 1000_000_000.0;
@@ -159,6 +187,7 @@ public class Renderer extends AnimationTimer {
         this.drawBalls();
         this.drawCue();
         this.drawFPS(dt);
+        this.drawDebugVectors();
         
         this.drawMessages();
         
@@ -250,6 +279,16 @@ public class Renderer extends AnimationTimer {
             gc.setTransform(baseTrans);
             this.gc.setLineWidth(3);
             this.gc.strokeLine(cue.get().getStartX(),cue.get().getStartY(), cue.get().getEndX(), cue.get().getEndY());
+        }
+    }
+
+    private void drawDebugVectors(){
+        for (Vector2 v: debugVectors) {
+
+            this.gc.setTransform(this.poolCoords);
+            this.gc.setLineWidth(2);
+            this.gc.strokeLine(0,0, physicsToScreenX(v.x), physicsToScreenY(v.y));
+
         }
     }
 
