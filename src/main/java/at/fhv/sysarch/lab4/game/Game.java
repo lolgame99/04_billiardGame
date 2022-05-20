@@ -3,6 +3,7 @@ package at.fhv.sysarch.lab4.game;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import at.fhv.sysarch.lab4.physics.Physics;
 import at.fhv.sysarch.lab4.rendering.Renderer;
@@ -28,7 +29,15 @@ public class Game {
         double pX = this.renderer.screenToPhysicsX(x);
         double pY = this.renderer.screenToPhysicsY(y);
 
-        Ray ray = new Ray(new Vector2(pX,pY), new Vector2(1,0));
+        Cue cue = new Cue(x,y);
+        this.renderer.setCue(Optional.of(cue));
+        System.out.println(x + " - "+ y);
+    }
+
+    public void onMouseReleased(MouseEvent e) {
+        this.renderer.setCue(Optional.empty());
+        /*
+            Ray ray = new Ray(new Vector2(pX,pY), new Vector2(1,0));
         ArrayList<RaycastResult> results = new ArrayList<>();
         boolean result = this.physics.getWorld().raycast(ray, 1.0,false,false,results);
         if (result){
@@ -39,14 +48,15 @@ public class Game {
             }
 
         }
-    }
-
-    public void onMouseReleased(MouseEvent e) {
+         */
     }
 
     public void setOnMouseDragged(MouseEvent e) {
         double x = e.getX();
         double y = e.getY();
+
+        this.renderer.getCue().get().setEnd(x,y);
+        System.out.println(x + " | "+ y);
 
         double pX = renderer.screenToPhysicsX(x);
         double pY = renderer.screenToPhysicsY(y);

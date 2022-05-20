@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import at.fhv.sysarch.lab4.game.Cue;
 import at.fhv.sysarch.lab4.physics.Physics;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Circle;
@@ -24,6 +25,7 @@ public class Renderer extends AnimationTimer {
     private long lastUpdate;
     private List<Ball> balls;
     private Table table;
+    private Optional<Cue> cue;
 
     private final GraphicsContext gc;
 
@@ -57,6 +59,7 @@ public class Renderer extends AnimationTimer {
         this.gc = gc;
 
         this.balls = new ArrayList<>();
+        this.cue = Optional.empty();
         
         this.centerX = (double) sceneWidth * 0.5;
         this.centerY = (double) sceneHeight * 0.5;
@@ -112,6 +115,14 @@ public class Renderer extends AnimationTimer {
 
     public void setFrameListener(FrameListener l) {
         this.frameListener = Optional.of(l);
+    }
+
+    public void setCue(Optional<Cue> cue) {
+        this.cue = cue;
+    }
+
+    public Optional<Cue> getCue() {
+        return cue;
     }
 
     public double screenToPhysicsX(double screenX) {
@@ -233,7 +244,13 @@ public class Renderer extends AnimationTimer {
     }
 
     private void drawCue() {
-        // TODO: draw cue
+        if (cue.isPresent()){
+            Affine baseTrans = new Affine();
+            baseTrans.appendTranslation(0, 0);
+            gc.setTransform(baseTrans);
+            this.gc.setLineWidth(3);
+            this.gc.strokeLine(cue.get().getStartX(),cue.get().getStartY(), cue.get().getEndX(), cue.get().getEndY());
+        }
     }
 
     private void drawFPS(double dt) {
