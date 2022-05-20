@@ -31,24 +31,37 @@ public class Game {
 
         Cue cue = new Cue(x,y);
         this.renderer.setCue(Optional.of(cue));
-        System.out.println(x + " - "+ y);
     }
 
     public void onMouseReleased(MouseEvent e) {
-        this.renderer.setCue(Optional.empty());
-        /*
-            Ray ray = new Ray(new Vector2(pX,pY), new Vector2(1,0));
+        Cue cue = this.renderer.getCue().get();
+
+
+        Vector2 start = new Vector2(
+                this.renderer.screenToPhysicsX(cue.getStartX()),
+                this.renderer.screenToPhysicsY(cue.getStartY())
+        );
+        Vector2 end = new Vector2(
+                this.renderer.screenToPhysicsX(cue.getEndX()),
+                this.renderer.screenToPhysicsY(cue.getEndY())
+        );
+
+        System.out.println("Start "+start.getXComponent()+" - "+start.getYComponent());
+        System.out.println("End "+end.getXComponent()+" - "+end.getYComponent());
+
+
+        Ray ray = new Ray(start, start.getDirection());
         ArrayList<RaycastResult> results = new ArrayList<>();
         boolean result = this.physics.getWorld().raycast(ray, 1.0,false,false,results);
         if (result){
             System.out.println("We hit something!");
             RaycastResult hit = results.get(0);
             if (hit.getBody().getUserData() instanceof Ball){
-                hit.getBody().applyForce(new Vector2(1,0).multiply(500));
+                hit.getBody().applyForce(start.subtract(end).multiply(500));
             }
 
         }
-         */
+        this.renderer.setCue(Optional.empty());
     }
 
     public void setOnMouseDragged(MouseEvent e) {
@@ -56,7 +69,6 @@ public class Game {
         double y = e.getY();
 
         this.renderer.getCue().get().setEnd(x,y);
-        System.out.println(x + " | "+ y);
 
         double pX = renderer.screenToPhysicsX(x);
         double pY = renderer.screenToPhysicsY(y);

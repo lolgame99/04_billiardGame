@@ -49,8 +49,7 @@ public class Physics implements ContactListener, StepListener {
 
     @Override
     public boolean begin(ContactPoint point) {
-
-        System.out.println("Contact!");
+        //System.out.println("Contact!");
         return true;
     }
 
@@ -62,7 +61,7 @@ public class Physics implements ContactListener, StepListener {
     @Override
     public boolean persist(PersistedContactPoint point) {
         if(point.isSensor()){
-            System.out.println("sensor");
+            //System.out.println("sensor");
         }
         return true;
     }

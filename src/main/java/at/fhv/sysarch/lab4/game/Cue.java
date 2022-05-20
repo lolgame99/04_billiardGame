@@ -33,4 +33,6 @@ public class Cue {
     public double getEndY() {
         return endY;
     }
+
+
 }
