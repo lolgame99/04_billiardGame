@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import at.fhv.sysarch.lab4.CoordinateConverter;
 import at.fhv.sysarch.lab4.physics.Physics;
 import at.fhv.sysarch.lab4.rendering.Renderer;
 import javafx.scene.input.MouseEvent;
@@ -13,22 +14,26 @@ import org.dyn4j.geometry.Ray;
 import org.dyn4j.geometry.Rotation;
 import org.dyn4j.geometry.Vector2;
 
+import static at.fhv.sysarch.lab4.rendering.Renderer.SCALE;
+
 public class Game {
     private final Renderer renderer;
     private Physics physics;
+    private CoordinateConverter converter;
 
     public Game(Renderer renderer, Physics physics) {
         this.renderer = renderer;
         this.physics = physics;
         this.initWorld();
+        this.converter = CoordinateConverter.getInstance();
     }
 
     public void onMousePressed(MouseEvent e) {
         double x = e.getX();
         double y = e.getY();
 
-        double pX = this.renderer.screenToPhysicsX(x);
-        double pY = this.renderer.screenToPhysicsY(y);
+        double pX = this.converter.screenToPhysicsX(x);
+        double pY = this.converter.screenToPhysicsY(y);
 
         Cue cue = new Cue(x,y);
         this.renderer.setCue(Optional.of(cue));
@@ -36,24 +41,14 @@ public class Game {
 
     public void onMouseReleased(MouseEvent e) {
         Cue cue = this.renderer.getCue().get();
-
-
-        Vector2 start = new Vector2(
-                this.renderer.screenToPhysicsX(cue.getStartX()),
-                this.renderer.screenToPhysicsY(cue.getStartY())
-        );
-        Vector2 end = new Vector2(
-                this.renderer.screenToPhysicsX(cue.getEndX()),
-                this.renderer.screenToPhysicsY(cue.getEndY())
-        );
-        Vector2 direction = end.subtract(start).rotate(Rotation.rotation180());
-        if (!direction.isZero()){
-            Ray ray = new Ray(start, direction);
+        Optional<Ray> ray = cue.getShotRay();
+        if(ray.isPresent()){
             ArrayList<RaycastResult> results = new ArrayList<>();
-            boolean result = this.physics.getWorld().raycast(ray, 0.1,false,false,results);
+            boolean result = this.physics.getWorld().raycast(ray.get(), 0.1,false,false,results);
             if (result && results.get(0).getBody().getUserData() instanceof Ball){
                 RaycastResult hit = results.get(0);
-                hit.getBody().applyForce(direction.multiply(500));
+                hit.getBody().applyForce(cue.getShotForce().multiply(SCALE));
+
             }
         }
 
@@ -65,9 +60,6 @@ public class Game {
         double y = e.getY();
 
         this.renderer.getCue().get().setEnd(x,y);
-
-        double pX = renderer.screenToPhysicsX(x);
-        double pY = renderer.screenToPhysicsY(y);
     }
 
     private void placeBalls(List<Ball> balls) {

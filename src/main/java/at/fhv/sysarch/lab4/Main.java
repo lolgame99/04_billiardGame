@@ -14,11 +14,13 @@ public class Main extends Application {
     private final static int SCENE_WIDTH  = 1536;
     private final static int SCENE_HEIGHT = 864;
 
+
     @Override
     public void start(Stage stage) {
         final Group root = new Group();
         final Scene s = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT, Color.BURLYWOOD);
-        final Canvas c = new Canvas(SCENE_WIDTH, SCENE_WIDTH);
+        final Canvas c = new Canvas(SCENE_WIDTH, SCENE_HEIGHT);
+        CoordinateConverter.getInstance().setSceneHeight(SCENE_HEIGHT).setSceneWidth(SCENE_WIDTH);
 
         Physics physics = new Physics();
 

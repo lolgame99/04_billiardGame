@@ -32,7 +32,7 @@ public class Renderer extends AnimationTimer {
     private final double sceneWidth;
     private final double sceneHeight;
 
-    private final static double SCALE = 400;
+    public final static double SCALE = 400;
 
     private final Affine poolCoords;
     private final Affine jfxCoords;
@@ -121,48 +121,6 @@ public class Renderer extends AnimationTimer {
 
     public Optional<Cue> getCue() {
         return cue;
-    }
-
-    public double screenToPhysicsX(double screenX) {
-        // screen has origin (0/0) top left corner,
-        // physics has origin (0/0) center of the screen
-        // and physics is scaled by factor SCALE
-
-        double pX = screenX - centerX;
-        pX = pX / SCALE;
-
-        return pX;
-    }
-
-    public double screenToPhysicsY(double screenY) {
-        // screen has origin (0/0) top left corner,
-        // physics has origin (0/0) center of the screen
-        // and physics is scaled by factor SCALE
-        
-        double pY = screenY - centerY;
-        pY = pY / SCALE;
-
-        return pY;
-    }
-
-    public double physicsToScreenX(double physicsX) {
-        // screen has origin (0/0) top left corner,
-        // physics has origin (0/0) center of the screen
-        // and physics is scaled by factor SCALE
-        double pX = physicsX * SCALE;
-        pX = pX + centerX;
-
-        return pX;
-    }
-
-    public double physicsToScreenY(double physicsY) {
-        // screen has origin (0/0) top left corner,
-        // physics has origin (0/0) center of the screen
-        // and physics is scaled by factor SCALE
-        double pY = physicsY * SCALE;
-        pY = pY + centerY;
-
-        return pY;
     }
 
     @Override
