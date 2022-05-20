@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import at.fhv.sysarch.lab4.physics.Physics;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Circle;
 import org.dyn4j.geometry.Polygon;
@@ -46,10 +47,13 @@ public class Renderer extends AnimationTimer {
     private int player1Score;
     private int player2Score;
 
+    private Physics physics;
+
     private Optional<FrameListener> frameListener;
 
     public Renderer(final GraphicsContext gc, 
-        int sceneWidth, int sceneHeight) {
+        int sceneWidth, int sceneHeight, Physics physics) {
+        this.physics = physics;
         this.gc = gc;
 
         this.balls = new ArrayList<>();
@@ -136,6 +140,7 @@ public class Renderer extends AnimationTimer {
     public void handle(long now) {
         double dt = (double) (now - lastUpdate) / 1000_000_000.0;
 
+        physics.getWorld().update(dt);
         this.frameListener.ifPresent(l -> l.onFrame(dt));
 
         this.clearWithColorBackground();
