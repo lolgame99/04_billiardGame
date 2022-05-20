@@ -46,20 +46,15 @@ public class Game {
                 this.renderer.screenToPhysicsY(cue.getEndY())
         );
 
-        System.out.println("Start "+start.getXComponent()+" - "+start.getYComponent());
-        System.out.println("End "+end.getXComponent()+" - "+end.getYComponent());
 
 
-        Ray ray = new Ray(start, start.getDirection());
+        Ray ray = new Ray(start, new Vector2(start.subtract(end)));
         ArrayList<RaycastResult> results = new ArrayList<>();
         boolean result = this.physics.getWorld().raycast(ray, 1.0,false,false,results);
-        if (result){
-            System.out.println("We hit something!");
+        if (result && results.get(0).getBody().getUserData() instanceof Ball){
             RaycastResult hit = results.get(0);
-            if (hit.getBody().getUserData() instanceof Ball){
-                hit.getBody().applyForce(start.subtract(end).multiply(500));
-            }
-
+            System.out.println(((Ball) hit.getBody().getUserData()).getColor() + " Ball hit");
+            hit.getBody().applyForce(start.subtract(end).multiply(500));
         }
         this.renderer.setCue(Optional.empty());
     }
