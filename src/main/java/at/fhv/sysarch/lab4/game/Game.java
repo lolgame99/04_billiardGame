@@ -27,6 +27,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
     private PlayerController playerController;
 
     private boolean ballsMoving = false;
+    private List<Ball> pocketedBalls;
 
     //foul flag
     private Pair<Boolean,String> foulTriggered;
@@ -46,6 +47,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
         this.foulTriggered = new Pair<>(false,"");
         this.initWorld();
         this.converter = CoordinateConverter.getInstance();
+        this.pocketedBalls = new ArrayList<>();
     }
 
     public void onMousePressed(MouseEvent e) {
@@ -68,7 +70,6 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
     public void onMouseReleased(MouseEvent e) {
         if (ballsMoving)
             return;
-
         Cue cue = this.renderer.getCue().get();
         Optional<Ray> ray = cue.getShotRay();
         if(ray.isPresent()){
@@ -156,6 +157,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
             foulTriggered = new Pair<>(true,"Foul Play! White ball pocketed");
             Ball.WHITE.setPosition(Table.Constants.WIDTH * 0.25, 0);
         } else {
+            pocketedBalls.add(b);
             renderer.removeBall(b);
             physics.getWorld().removeBody(b.getBody());
             playerController.increasePlayerScoreByAmount(1);
@@ -179,13 +181,25 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
             ballsMoving = false;
             foulTriggered = new Pair<>(true, "Foul Play! White ball didn't another ball");
             hasPlayed = false;
+            if (pocketedBalls.size() == 14){
+                resetGame();
+            }
         }
     }
 
     @Override
     public void onBallsCollide(Ball b1, Ball b2) {
-        if (b1.isWhite() && !b2.isWhite() || !b1.isWhite() && b2.isWhite()){
+        if ((b1.isWhite() && !b2.isWhite() || !b1.isWhite() && b2.isWhite())
+            && foulTriggered.getValue().equals("Foul Play! White ball didn't another ball")){
             this.foulTriggered = new Pair<>(false,"");
         }
+    }
+
+    private void resetGame(){
+        for (Ball b: pocketedBalls) {
+            physics.getWorld().addBody(b.getBody());
+        }
+        placeBalls(pocketedBalls);
+        pocketedBalls = List.of();
     }
 }
