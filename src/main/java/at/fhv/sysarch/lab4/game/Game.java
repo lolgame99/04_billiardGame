@@ -27,6 +27,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
     private PlayerController playerController;
 
     private boolean ballsMoving = false;
+    private boolean ballPocketedThisRound = false;
     private List<Ball> pocketedBalls;
 
     //foul flag
@@ -157,6 +158,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
             foulTriggered = new Pair<>(true,"Foul Play! White ball pocketed");
             Ball.WHITE.setPosition(Table.Constants.WIDTH * 0.25, 0);
         } else {
+            ballPocketedThisRound = true;
             pocketedBalls.add(b);
             renderer.removeBall(b);
             physics.getWorld().removeBody(b.getBody());
@@ -179,8 +181,12 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
             }
 
             ballsMoving = false;
-            foulTriggered = new Pair<>(true, "Foul Play! White ball didn't another ball");
+            foulTriggered = new Pair<>(true, "Foul Play! White ball didn't hit another ball");
             hasPlayed = false;
+
+            if (!ballPocketedThisRound){
+                playerController.switchPlayers();
+            }
             if (pocketedBalls.size() == 14){
                 resetGame();
             }
@@ -190,7 +196,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
     @Override
     public void onBallsCollide(Ball b1, Ball b2) {
         if ((b1.isWhite() && !b2.isWhite() || !b1.isWhite() && b2.isWhite())
-            && foulTriggered.getValue().equals("Foul Play! White ball didn't another ball")){
+            && foulTriggered.getValue().equals("Foul Play! White ball didn't hit another ball")){
             this.foulTriggered = new Pair<>(false,"");
         }
     }
