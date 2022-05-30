@@ -30,7 +30,7 @@ public class PlayerController {
             renderer.setPlayer2Score(score[1]);
         }
 
-        renderer.setStrikeMessage("Player " + currentPlayer + " scored " + amount + " point(s)!");
+        renderer.setStrikeMessage("Player " + currentPlayer + " scored " + amount + " point!");
     }
 
     public void decreasePlayerScoreByAmount(int amount) {
@@ -42,6 +42,6 @@ public class PlayerController {
             renderer.setPlayer2Score(score[1]);
         }
 
-        renderer.setStrikeMessage("Player " + currentPlayer + " lost " + amount + " point(s)!");
+        renderer.setStrikeMessage("Player " + currentPlayer + " lost " + amount + " point!");
     }
 }

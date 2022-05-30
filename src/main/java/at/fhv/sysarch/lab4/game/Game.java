@@ -7,10 +7,12 @@ import java.util.Optional;
 
 import at.fhv.sysarch.lab4.CoordinateConverter;
 import at.fhv.sysarch.lab4.physics.BallPocketedListener;
+import at.fhv.sysarch.lab4.physics.BallsCollisionListener;
 import at.fhv.sysarch.lab4.physics.ObjectsRestListener;
 import at.fhv.sysarch.lab4.physics.Physics;
 import at.fhv.sysarch.lab4.rendering.Renderer;
 import javafx.scene.input.MouseEvent;
+import javafx.util.Pair;
 import org.dyn4j.dynamics.RaycastResult;
 import org.dyn4j.geometry.Ray;
 import org.dyn4j.geometry.Rotation;
@@ -18,7 +20,7 @@ import org.dyn4j.geometry.Vector2;
 
 import static at.fhv.sysarch.lab4.rendering.Renderer.SCALE;
 
-public class Game implements BallPocketedListener, ObjectsRestListener {
+public class Game implements BallPocketedListener, ObjectsRestListener, BallsCollisionListener {
     private final Renderer renderer;
     private Physics physics;
     private CoordinateConverter converter;
@@ -26,8 +28,8 @@ public class Game implements BallPocketedListener, ObjectsRestListener {
 
     private boolean ballsMoving = false;
 
-    //foul flags
-    private boolean foulWhiteBallPocketed;
+    //foul flag
+    private Pair<Boolean,String> foulTriggered;
 
     //player
     private boolean hasPlayed = false;
@@ -35,9 +37,13 @@ public class Game implements BallPocketedListener, ObjectsRestListener {
     public Game(Renderer renderer, Physics physics) {
         this.playerController = new PlayerController(renderer);
         this.renderer = renderer;
+
         this.physics = physics;
         this.physics.setBallPocketedListener(this);
         this.physics.setObjectsRestListener(this);
+        this.physics.setBallsCollisionListener(this);
+
+        this.foulTriggered = new Pair<>(false,"");
         this.initWorld();
         this.converter = CoordinateConverter.getInstance();
     }
@@ -71,7 +77,9 @@ public class Game implements BallPocketedListener, ObjectsRestListener {
             if (result && results.get(0).getBody().getUserData() instanceof Ball){
                 RaycastResult hit = results.get(0);
                 hit.getBody().applyForce(cue.getShotForce().multiply(SCALE));
-
+                if (!((Ball) results.get(0).getBody().getUserData()).isWhite()){
+                    foulTriggered = new Pair<>(true,"Foul Play! Cue hit non white ball");
+                }
             }
         }
         hasPlayed = true;
@@ -145,7 +153,8 @@ public class Game implements BallPocketedListener, ObjectsRestListener {
         b.getBody().setLinearVelocity(0, 0);
 
         if (b == Ball.WHITE) {
-            foulWhiteBallPocketed = true;
+            foulTriggered = new Pair<>(true,"Foul Play! White ball pocketed");
+            Ball.WHITE.setPosition(Table.Constants.WIDTH * 0.25, 0);
         } else {
             renderer.removeBall(b);
             physics.getWorld().removeBody(b.getBody());
@@ -161,15 +170,22 @@ public class Game implements BallPocketedListener, ObjectsRestListener {
     @Override
     public void onStartAllObjectsRest() {
         if (hasPlayed){
-            if (foulWhiteBallPocketed){
-                renderer.setFoulMessage("Foul Play! White ball pocketed");
-                Ball.WHITE.setPosition(Table.Constants.WIDTH * 0.25, 0);
+            if (foulTriggered.getKey()){
+                renderer.setFoulMessage(foulTriggered.getValue());
                 playerController.decreasePlayerScoreByAmount(1);
                 playerController.switchPlayers();
             }
 
             ballsMoving = false;
-            foulWhiteBallPocketed = false;
+            foulTriggered = new Pair<>(true, "Foul Play! White ball didn't another ball");
+            hasPlayed = false;
+        }
+    }
+
+    @Override
+    public void onBallsCollide(Ball b1, Ball b2) {
+        if (b1.isWhite() && !b2.isWhite() || !b1.isWhite() && b2.isWhite()){
+            this.foulTriggered = new Pair<>(false,"");
         }
     }
 }

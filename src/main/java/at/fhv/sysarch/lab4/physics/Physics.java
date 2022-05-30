@@ -15,6 +15,7 @@ public class Physics implements ContactListener, StepListener {
     private World world;
     private BallPocketedListener ballPocketedListener;
     private ObjectsRestListener objectsRestListener;
+    private BallsCollisionListener ballsCollisionListener;
 
     public Physics(){
         this.world = new World();
@@ -67,7 +68,15 @@ public class Physics implements ContactListener, StepListener {
 
     @Override
     public boolean begin(ContactPoint point) {
-        //System.out.println("Contact!");
+        Body body1 = point.getBody1();
+        Body body2 = point.getBody2();
+
+        if (body1.getUserData() instanceof Ball && body2.getUserData() instanceof Ball) {
+            ballsCollisionListener.onBallsCollide(
+                    (Ball) body1.getUserData(),
+                    (Ball) body2.getUserData()
+            );
+        }
         return true;
     }
 
@@ -115,5 +124,9 @@ public class Physics implements ContactListener, StepListener {
 
     public void setObjectsRestListener(ObjectsRestListener objectsRestListener) {
         this.objectsRestListener = objectsRestListener;
+    }
+
+    public void setBallsCollisionListener(BallsCollisionListener ballsCollisionListener) {
+        this.ballsCollisionListener = ballsCollisionListener;
     }
 }
