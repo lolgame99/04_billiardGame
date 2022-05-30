@@ -22,6 +22,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener {
     private final Renderer renderer;
     private Physics physics;
     private CoordinateConverter converter;
+    private PlayerController playerController;
 
     private boolean ballsMoving = false;
 
@@ -32,6 +33,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener {
     private boolean hasPlayed = false;
 
     public Game(Renderer renderer, Physics physics) {
+        this.playerController = new PlayerController(renderer);
         this.renderer = renderer;
         this.physics = physics;
         this.physics.setBallPocketedListener(this);
@@ -41,6 +43,9 @@ public class Game implements BallPocketedListener, ObjectsRestListener {
     }
 
     public void onMousePressed(MouseEvent e) {
+        renderer.setStrikeMessage("");
+        renderer.setActionMessage("");
+        renderer.setFoulMessage("");
         if (ballsMoving)
             return;
 
@@ -132,6 +137,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener {
         Table table = new Table();
         physics.getWorld().addBody(table.getBody());
         renderer.setTable(table);
+        renderer.setActionMessage("Player 1 starts the game!");
     }
 
     @Override
@@ -143,6 +149,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener {
         } else {
             renderer.removeBall(b);
             physics.getWorld().removeBody(b.getBody());
+            playerController.increasePlayerScoreByAmount(1);
         }
     }
 
@@ -155,12 +162,14 @@ public class Game implements BallPocketedListener, ObjectsRestListener {
     public void onStartAllObjectsRest() {
         if (hasPlayed){
             if (foulWhiteBallPocketed){
-
                 renderer.setFoulMessage("Foul Play! White ball pocketed");
                 Ball.WHITE.setPosition(Table.Constants.WIDTH * 0.25, 0);
+                playerController.decreasePlayerScoreByAmount(1);
+                playerController.switchPlayers();
             }
 
             ballsMoving = false;
+            foulWhiteBallPocketed = false;
         }
     }
 }
