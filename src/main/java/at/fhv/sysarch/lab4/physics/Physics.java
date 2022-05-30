@@ -1,5 +1,7 @@
 package at.fhv.sysarch.lab4.physics;
 
+import at.fhv.sysarch.lab4.game.Ball;
+import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.Step;
 import org.dyn4j.dynamics.StepListener;
 import org.dyn4j.dynamics.World;
@@ -7,9 +9,12 @@ import org.dyn4j.dynamics.contact.ContactListener;
 import org.dyn4j.dynamics.contact.ContactPoint;
 import org.dyn4j.dynamics.contact.PersistedContactPoint;
 import org.dyn4j.dynamics.contact.SolvedContactPoint;
+import org.dyn4j.geometry.Vector2;
 
 public class Physics implements ContactListener, StepListener {
     private World world;
+    private BallPocketedListener ballPocketedListener;
+    private ObjectsRestListener objectsRestListener;
 
     public Physics(){
         this.world = new World();
@@ -39,6 +44,19 @@ public class Physics implements ContactListener, StepListener {
 
     @Override
     public void end(Step step, World world) {
+        int ballsMoving = 0;
+
+        for (Ball ball : Ball.values()) {
+            if (!ball.getBody().getLinearVelocity().isZero()){
+                ballsMoving++;
+            }
+        }
+
+        if (ballsMoving > 0){
+            objectsRestListener.onEndAllObjectsRest();
+        } else {
+            objectsRestListener.onStartAllObjectsRest();
+        }
 
     }
 
@@ -61,7 +79,22 @@ public class Physics implements ContactListener, StepListener {
     @Override
     public boolean persist(PersistedContactPoint point) {
         if(point.isSensor()){
-            //System.out.println("sensor");
+            Body body1 = point.getBody1();
+            Body body2 = point.getBody2();
+            if (body1.getUserData() instanceof Ball) {
+                Vector2 ballPosition = body1.getTransform().getTranslation();
+                Vector2 pocketPosition = body2.getTransform().getTranslation();
+
+                // get pocket center
+                Vector2 pocketCenter = point.getFixture2().getShape().getCenter();
+
+                // get pocket position in world
+                Vector2 pocketPositionInWorld = pocketPosition.add(pocketCenter);
+
+                if (ballPosition.difference(pocketPositionInWorld).getMagnitude() <= Ball.Constants.RADIUS) {
+                    ballPocketedListener.onBallPocketed((Ball) body1.getUserData());
+                }
+            }
         }
         return true;
     }
@@ -74,5 +107,13 @@ public class Physics implements ContactListener, StepListener {
     @Override
     public void postSolve(SolvedContactPoint point) {
 
+    }
+
+    public void setBallPocketedListener(BallPocketedListener ballPocketedListener) {
+        this.ballPocketedListener = ballPocketedListener;
+    }
+
+    public void setObjectsRestListener(ObjectsRestListener objectsRestListener) {
+        this.objectsRestListener = objectsRestListener;
     }
 }
