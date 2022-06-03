@@ -69,9 +69,10 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
     }
 
     public void onMouseReleased(MouseEvent e) {
-        if (ballsMoving)
+        if (ballsMoving || this.renderer.getCue().isEmpty())
             return;
         Cue cue = this.renderer.getCue().get();
+
         Optional<Ray> ray = cue.getShotRay();
         if(ray.isPresent()){
             ArrayList<RaycastResult> results = new ArrayList<>();
@@ -89,7 +90,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
     }
 
     public void setOnMouseDragged(MouseEvent e) {
-        if (ballsMoving)
+        if (ballsMoving || this.renderer.getCue().isEmpty())
             return;
 
         double x = e.getX();
@@ -153,7 +154,6 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
     @Override
     public void onBallPocketed(Ball b) {
         b.getBody().setLinearVelocity(0, 0);
-
         if (b == Ball.WHITE) {
             foulTriggered = new Pair<>(true,"Foul Play! White ball pocketed");
             Ball.WHITE.setPosition(Table.Constants.WIDTH * 0.25, 0);
@@ -161,7 +161,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
             ballPocketedThisRound = true;
             pocketedBalls.add(b);
             renderer.removeBall(b);
-            physics.getWorld().removeBody(b.getBody());
+            b.setPosition(Table.Constants.WIDTH * 1.5, Table.Constants.HEIGHT * 1.5);
             playerController.increasePlayerScoreByAmount(1);
         }
     }
@@ -202,10 +202,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
     }
 
     private void resetGame(){
-        for (Ball b: pocketedBalls) {
-            physics.getWorld().addBody(b.getBody());
-        }
         placeBalls(pocketedBalls);
-        pocketedBalls = List.of();
+        pocketedBalls = new ArrayList<>();
     }
 }
