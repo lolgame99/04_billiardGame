@@ -161,7 +161,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
             ballPocketedThisRound = true;
             pocketedBalls.add(b);
             renderer.removeBall(b);
-            b.setPosition(Table.Constants.WIDTH * 1.5, Table.Constants.HEIGHT * 1.5);
+            physics.getWorld().removeBody(b.getBody());
             playerController.increasePlayerScoreByAmount(1);
         }
     }
@@ -180,13 +180,15 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
                 playerController.switchPlayers();
             }
 
-            ballsMoving = false;
-            foulTriggered = new Pair<>(true, "Foul Play! White ball didn't hit another ball");
-            hasPlayed = false;
-
             if (!ballPocketedThisRound){
                 playerController.switchPlayers();
             }
+
+            ballsMoving = false;
+            foulTriggered = new Pair<>(true, "Foul Play! White ball didn't hit another ball");
+            hasPlayed = false;
+            ballPocketedThisRound = false;
+
             if (pocketedBalls.size() == 14){
                 resetGame();
             }
@@ -202,6 +204,9 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
     }
 
     private void resetGame(){
+        for (Ball b : pocketedBalls) {
+            physics.getWorld().addBody(b.getBody());
+        }
         placeBalls(pocketedBalls);
         pocketedBalls = new ArrayList<>();
     }

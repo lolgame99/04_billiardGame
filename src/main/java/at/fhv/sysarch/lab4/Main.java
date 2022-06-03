@@ -8,11 +8,12 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-    private final static int SCENE_WIDTH  = 1536;
-    private final static int SCENE_HEIGHT = 864;
+    private final static int SCENE_WIDTH  = (int) Screen.getPrimary().getBounds().getWidth();
+    private final static int SCENE_HEIGHT = (int) Screen.getPrimary().getBounds().getHeight();
 
 
     @Override

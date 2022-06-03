@@ -103,6 +103,19 @@ public class Physics implements ContactListener, StepListener {
                 if (ballPosition.difference(pocketPositionInWorld).getMagnitude() <= Ball.Constants.RADIUS) {
                     ballPocketedListener.onBallPocketed((Ball) body1.getUserData());
                 }
+            } else if (body2.getUserData() instanceof Ball) {
+                Vector2 ballPosition = body2.getTransform().getTranslation();
+                Vector2 pocketPosition = body1.getTransform().getTranslation();
+
+                // get pocket center
+                Vector2 pocketCenter = point.getFixture1().getShape().getCenter();
+
+                // get pocket position in world
+                Vector2 pocketPositionInWorld = pocketPosition.add(pocketCenter);
+
+                if (ballPosition.difference(pocketPositionInWorld).getMagnitude() <= Ball.Constants.RADIUS) {
+                    ballPocketedListener.onBallPocketed((Ball) body2.getUserData());
+                }
             }
         }
         return true;
