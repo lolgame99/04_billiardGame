@@ -29,6 +29,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
     private boolean ballsMoving = false;
     private boolean ballPocketedThisRound = false;
     private List<Ball> pocketedBalls;
+    private Vector2 whiteBallposition;
 
     //foul flag
     private Pair<Boolean,String> foulTriggered;
@@ -80,6 +81,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
             if (result && results.get(0).getBody().getUserData() instanceof Ball){
                 RaycastResult hit = results.get(0);
                 hit.getBody().applyForce(cue.getShotForce().multiply(SCALE));
+                whiteBallposition = Ball.WHITE.getBody().getTransform().getTranslation();
                 if (!((Ball) results.get(0).getBody().getUserData()).isWhite()){
                     foulTriggered = new Pair<>(true,"Foul Play! Cue hit non white ball");
                 }
@@ -106,6 +108,10 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
         int row = 0;
         int col = 0;
         int colSize = 5;
+
+        if(balls.size() == 14){
+            row++;
+        }
 
         double y0 = -2*Ball.Constants.RADIUS*2;
         double x0 = -Table.Constants.WIDTH * 0.25 - Ball.Constants.RADIUS;
@@ -156,7 +162,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
         b.getBody().setLinearVelocity(0, 0);
         if (b == Ball.WHITE) {
             foulTriggered = new Pair<>(true,"Foul Play! White ball pocketed");
-            Ball.WHITE.setPosition(Table.Constants.WIDTH * 0.25, 0);
+            Ball.WHITE.setPosition(whiteBallposition.x, whiteBallposition.y);
         } else {
             ballPocketedThisRound = true;
             pocketedBalls.add(b);
