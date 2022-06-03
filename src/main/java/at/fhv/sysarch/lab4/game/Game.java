@@ -46,7 +46,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
         this.physics.setObjectsRestListener(this);
         this.physics.setBallsCollisionListener(this);
 
-        this.foulTriggered = new Pair<>(false,"");
+        this.foulTriggered = new Pair<>(true, "Foul Play! White ball didn't hit another ball");
         this.initWorld();
         this.converter = CoordinateConverter.getInstance();
         this.pocketedBalls = new ArrayList<>();
@@ -79,6 +79,7 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
             ArrayList<RaycastResult> results = new ArrayList<>();
             boolean result = this.physics.getWorld().raycast(ray.get(), 0.1,false,false,results);
             if (result && results.get(0).getBody().getUserData() instanceof Ball){
+                hasPlayed = true;
                 RaycastResult hit = results.get(0);
                 hit.getBody().applyForce(cue.getShotForce().multiply(SCALE));
                 whiteBallposition = Ball.WHITE.getBody().getTransform().getTranslation();
@@ -87,7 +88,6 @@ public class Game implements BallPocketedListener, ObjectsRestListener, BallsCol
                 }
             }
         }
-        hasPlayed = true;
         this.renderer.setCue(Optional.empty());
     }
 
